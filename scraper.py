@@ -41,7 +41,9 @@ def get_standings():
         LEAGUE_AVG_RPG = 4.5
         for record in data.get("records", []):
             for team in record.get("teamRecords", []):
-                abbr = team["team"]["abbreviation"]
+               abbr = team["team"].get("abbreviation") or team["team"].get("teamCode", "").upper()
+if not abbr:
+    continue
                 wins = team["wins"]
                 losses = team["losses"]
                 games_played = wins + losses
