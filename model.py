@@ -76,7 +76,7 @@ def run_model():
         hd = standings.get(home, {})
         ad = standings.get(away, {})
 
-     LEAGUE_AVG = 4.5
+        LEAGUE_AVG = 4.5
 
         h_rpg = hd.get("rpgScored", LEAGUE_AVG)
         a_rpg = ad.get("rpgScored", LEAGUE_AVG)
