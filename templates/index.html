@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MLB Predictions</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0f0f0f;color:#e8e6de;min-height:100vh}
+.container{max-width:860px;margin:0 auto;padding:1.5rem 1rem}
+header{margin-bottom:1.5rem}
+h1{font-size:20px;font-weight:500;margin-bottom:4px}
+.subtitle{font-size:12px;color:#888;margin-bottom:1rem}
+.tabs{display:flex;gap:6px;margin-bottom:1rem;flex-wrap:wrap}
+.tab{padding:6px 14px;font-size:13px;border:0.5px solid #333;border-radius:8px;cursor:pointer;background:transparent;color:#888}
+.tab.active{background:#1a1a1a;color:#e8e6de;border-color:#555}
+.panel{display:none}.panel.active{display:block}
+.game-card{background:#1a1a1a;border:0.5px solid #2a2a2a;border-radius:12px;padding:12px 14px;margin-bottom:8px;cursor:pointer;transition:border-color 0.15s}
+.game-card:hover{border-color:#444}
+.game-top{display:flex;align-items:center;gap:8px;margin-bottom:7px}
+.time-tag{font-size:11px;color:#666;min-width:68px}
+.matchup{flex:1;display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.team-name{font-size:13px;font-weight:500}
+.rec{font-size:11px;color:#666}
+.vs-sep{font-size:11px;color:#444}
+.pred-badge{font-size:12px;font-weight:500;padding:3px 10px;border-radius:8px;white-space:nowrap}
+.pred-high{background:#0d2b1a;color:#4ade80}
+.pred-med{background:#2b1f00;color:#fbbf24}
+.pred-low{background:#1a1a1a;color:#666;border:0.5px solid #333}
+.conf-star{color:#fbbf24;margin-left:3px}
+.pitcher-line{font-size:11px;color:#666;display:flex;gap:6px;flex-wrap:wrap}
+.grade-pill{display:inline-block;font-size:10px;padding:1px 6px;border-radius:10px;font-weight:500}
+.grade-A{background:#0d2b1a;color:#4ade80}
+.grade-B{background:#0d1f3a;color:#60a5fa}
+.grade-C{background:#2b1f00;color:#fbbf24}
+.grade-D{background:#2b0d0d;color:#f87171}
+.grade-X{background:#1a1a1a;color:#666}
+.game-detail{display:none;margin-top:10px;border-top:0.5px solid #2a2a2a;padding-top:10px}
+.game-detail.open{display:block}
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+.detail-block{background:#111;border-radius:8px;padding:8px 10px}
+.detail-label{font-size:11px;color:#666;margin-bottom:3px}
+.detail-val{font-size:15px;font-weight:500}
+.detail-sub{font-size:11px;color:#555;margin-top:2px}
+.prob-row{font-size:11px;color:#666;margin-bottom:5px}
+.pitcher-note{font-size:11px;color:#666;margin-bottom:3px}
+.edge-box{background:#0d1f3a;color:#60a5fa;font-size:11px;padding:5px 9px;border-radius:8px;margin-top:6px;line-height:1.6}
+.lean-box{background:#2b1f00;color:#fbbf24;font-size:11px;padding:5px 9px;border-radius:8px;margin-top:6px;line-height:1.6}
+.section-card{background:#1a1a1a;border:0.5px solid #2a2a2a;border-radius:12px;overflow:hidden;margin-bottom:8px}
+.section-title{font-size:11px;font-weight:500;color:#666;padding:8px 10px;border-bottom:0.5px solid #2a2a2a;text-transform:uppercase;letter-spacing:.05em;background:#111}
+.pitcher-row{display:grid;grid-template-columns:2fr 0.8fr 0.8fr 0.8fr 0.7fr;gap:4px;align-items:center;padding:8px 10px;font-size:12px;border-bottom:0.5px solid #222}
+.pitcher-row:last-child{border-bottom:none}
+.pitcher-row.hdr{font-size:11px;color:#666;font-weight:500;background:#111}
+.team-row{display:grid;grid-template-columns:2fr 0.8fr 0.8fr 0.8fr 1.2fr;gap:4px;align-items:center;padding:8px 10px;font-size:12px;border-bottom:0.5px solid #222}
+.team-row:last-child{border-bottom:none}
+.team-row.hdr{font-size:11px;color:#666;font-weight:500;background:#111}
+.div-sep{font-size:11px;font-weight:500;color:#555;padding:6px 10px 3px;letter-spacing:.04em;border-top:0.5px solid #222;margin-top:2px}
+.form-dots{display:flex;gap:3px;align-items:center}
+.dot{width:8px;height:8px;border-radius:50%}
+.dot-W{background:#4ade80}.dot-L{background:#f87171}
+.loading{text-align:center;padding:3rem;color:#555;font-size:14px}
+.error{text-align:center;padding:2rem;color:#f87171;font-size:13px}
+.generated{font-size:11px;color:#555;margin-bottom:1rem}
+.refresh-btn{font-size:12px;color:#60a5fa;background:none;border:0.5px solid #1a3a5a;border-radius:6px;padding:4px 10px;cursor:pointer;margin-left:8px}
+.refresh-btn:hover{background:#0d1f3a}
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>MLB Predictions</h1>
+    <div class="subtitle">Upgraded model v2 — team baseline 35% · starting pitcher 35% · bullpen 20% · lineup 10%</div>
+  </header>
+
+  <div id="app">
+    <div class="loading">Loading predictions...</div>
+  </div>
+</div>
+
+<script>
+let DATA = null;
+
+const PITCHER_NOTES = {
+  "Max Fried": "0 ER through 13.1 IP — elite start to 2026",
+  "Edward Cabrera": "6 IP, 1 H, 5 K in debut — very sharp",
+  "Luis Castillo": "Shut out NYY through 6 IP with 7 K",
+  "Lance McCullers Jr": "1 ER in 7 IP vs BOS, 13.5% swinging strike rate",
+  "Chase Burns": "7 K in 5 IP — strong process stats",
+  "Kodai Senga": "9 K, 2 ER in 6 IP vs STL — back to elite form",
+  "Jack Leiter": "8 K in 6 IP vs BAL last week",
+  "Roki Sasaki": "97 mph fastball, solid debut — 1 ER in 4 IP",
+  "Kyle Harrison": "8 K through 5 IP vs Rays",
+  "Simeon Woods Richardson": "Solid 5 IP vs KC last week",
+  "Eric Lauer": "9 K in 5.1 IP — likely outlier but real stuff",
+  "Nick Martinez": "Changeup-heavy, works vs LHH-heavy lineups",
+  "Foster Griffin": "NPB: 1.62 ERA, 1.78 FIP, 8.8 K/9 — first MLB start",
+  "Kris Bubic": "ERA 1.50 but xERA 4.65 — regression candidate",
+  "Keider Montero": "First MLB start of 2026 — 4 shutout IP in AAA",
+  "Brandon Pfaadt": "Tagged for 5 ER on 6 H in 6 IP vs DET",
+  "Kyle Leahy": "Rough MLB debut — 4 ER on 8 H vs NYM",
+  "Chris Bassitt": "4 BB in 4.1 IP — command was badly off",
+  "Davis Martin": "3 ER in 5 IP vs MIA — below average debut",
+  "Braxton Ashcraft": "Only 10th MLB start — limited track record",
+  "Taijuan Walker": "6 ER on 10 H in 4.2 IP vs WSH — dreadful",
+  "Walker Buehler": "No sign of improvement per early metrics",
+  "Ranger Suarez": "Struggled through 4.1 IP vs HOU",
+  "Tomoyuki Sugano": "Surprisingly held TOR to 1 R on 2 H in 4.1 IP",
+  "Logan Webb": "10 ER on 12 H through 11 IP — badly struggling",
+  "Ryan Johnson": "Second MLB start — 6 ER on 7 H in 3.1 IP vs CHC",
+  "Jacob Lopez": "5 BB in 4 IP vs ATL — very raw",
+  "Chris Paddack": "8 ER on 8 H in 4 IP vs CWS — disaster outing",
+};
+
+function formatTime(iso) {
+  if (!iso) return "";
+  try {
+    const d = new Date(iso);
+    return d.toLocaleTimeString("en-US", {hour:"numeric", minute:"2-digit", timeZone:"America/New_York"});
+  } catch(e) { return iso; }
+}
+
+function gradeClass(g) {
+  return {A:"grade-A",B:"grade-B",C:"grade-C",D:"grade-D"}[g] || "grade-X";
+}
+
+function toggle(id) {
+  const el = document.getElementById(id);
+  if (el) el.classList.toggle("open");
+}
+
+function showPanel(name, btn) {
+  document.querySelectorAll(".panel").forEach(p => p.classList.remove("active"));
+  document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+  document.getElementById("panel-" + name).classList.add("active");
+  btn.classList.add("active");
+}
+
+async function refresh() {
+  const btn = document.getElementById("refresh-btn");
+  if (btn) btn.textContent = "Refreshing...";
+  await fetch("/api/refresh");
+  await loadData();
+}
+
+async function loadData() {
+  try {
+    const res = await fetch("/api/predictions");
+    DATA = await res.json();
+    render();
+  } catch(e) {
+    document.getElementById("app").innerHTML = `<div class="error">Failed to load predictions. <button class="refresh-btn" onclick="loadData()">Try again</button></div>`;
+  }
+}
+
+function render() {
+  const games = DATA.games || [];
+  const standings = DATA.standings || {};
+
+  const gamesHTML = games.map((g, i) => {
+    const wp = g.winnerProb;
+    const cls = wp >= 0.62 ? "pred-high" : wp >= 0.56 ? "pred-med" : "pred-low";
+    const star = wp >= 0.60 ? '<span class="conf-star">★</span>' : "";
+    const hNote = PITCHER_NOTES[g.homePitcher] || "";
+    const aNote = PITCHER_NOTES[g.awayPitcher] || "";
+    const edgeNote = g.edge
+      ? `<div class="edge-box">Edge pick: ${g.winner} · Fair ML ${g.winner === g.home ? g.fairMLHome : g.fairMLAway} · Multiple signals aligned</div>`
+      : g.lean
+      ? `<div class="lean-box">Lean: ${g.winner} has model edge — confirm vs market line before betting</div>`
+      : "";
+
+    return `<div class="game-card" onclick="toggle('d${i}')">
+      <div class="game-top">
+        <span class="time-tag">${formatTime(g.time)}</span>
+        <div class="matchup">
+          <span class="team-name">${g.home}</span>
+          <span class="rec">${g.homeRecord}</span>
+          <span class="vs-sep">vs</span>
+          <span class="team-name">${g.away}</span>
+          <span class="rec">${g.awayRecord}</span>
+        </div>
+        <span class="pred-badge ${cls}">${g.winner} ${(wp*100).toFixed(0)}%${star}</span>
+      </div>
+      <div class="pitcher-line">
+        <span>${g.homePitcher} <span class="grade-pill ${gradeClass(g.homePitcherGrade)}">${g.homePitcherGrade}</span></span>
+        <span style="color:#333">|</span>
+        <span>${g.awayPitcher} <span class="grade-pill ${gradeClass(g.awayPitcherGrade)}">${g.awayPitcherGrade}</span></span>
+      </div>
+      <div class="game-detail" id="d${i}">
+        <div class="detail-grid">
+          <div class="detail-block">
+            <div class="detail-label">${g.home} projected</div>
+            <div class="detail-val">${g.homePredRuns} runs</div>
+            <div class="detail-sub">Pyth ${g.homePyth}% · ${g.homeRPG} R/G</div>
+          </div>
+          <div class="detail-block">
+            <div class="detail-label">${g.away} projected</div>
+            <div class="detail-val">${g.awayPredRuns} runs</div>
+            <div class="detail-sub">Pyth ${g.awayPyth}% · ${g.awayRPG} R/G</div>
+          </div>
+        </div>
+        <div class="prob-row">
+          Win probability — ${g.home}: ${(g.homeWinProb*100).toFixed(1)}% · ${g.away}: ${(g.awayWinProb*100).toFixed(1)}%
+          &nbsp;·&nbsp; Fair ML: ${g.home} ${g.fairMLHome} / ${g.away} ${g.fairMLAway}
+        </div>
+        ${hNote ? `<div class="pitcher-note"><b>${g.homePitcher}</b>: ${hNote}</div>` : ""}
+        ${aNote ? `<div class="pitcher-note"><b>${g.awayPitcher}</b>: ${aNote}</div>` : ""}
+        ${edgeNote}
+      </div>
+    </div>`;
+  }).join("");
+
+  const teamsHTML = (() => {
+    const divOrder = ["AL East","AL Central","AL West","NL East","NL Central","NL West"];
+    let html = "";
+    divOrder.forEach(div => {
+      const divTeams = Object.entries(standings)
+        .filter(([,d]) => d.division && d.division.includes(div.split(" ").pop()))
+        .sort((a,b) => b[1].w - a[1].w);
+      if (!divTeams.length) return;
+      html += `<div class="div-sep">${div}</div>`;
+      divTeams.forEach(([abbr, d]) => {
+        const g = Math.max(d.w + d.l, 1);
+        const rs = d.runsScored || 0;
+        const ra = d.runsAllowed || 1;
+        const pyth = (Math.pow(rs, 1.83) / (Math.pow(rs, 1.83) + Math.pow(ra, 1.83)) * 100).toFixed(0);
+        const rpg = (rs / g).toFixed(1);
+        html += `<div class="team-row">
+          <span style="font-weight:500">${abbr}</span>
+          <span>${d.w}-${d.l}</span>
+          <span>${pyth}%</span>
+          <span>${rpg}</span>
+          <span></span>
+        </div>`;
+      });
+    });
+    return html;
+  })();
+
+  document.getElementById("app").innerHTML = `
+    <div class="generated">
+      Last updated: ${DATA.generated || "unknown"}
+      <button class="refresh-btn" id="refresh-btn" onclick="refresh()">Refresh now</button>
+    </div>
+    <div class="tabs">
+      <button class="tab active" onclick="showPanel('games',this)">Today's Games</button>
+      <button class="tab" onclick="showPanel('teams',this)">Team Stats</button>
+    </div>
+    <div id="panel-games" class="panel active">${gamesHTML || '<div class="loading">No games today.</div>'}</div>
+    <div id="panel-teams" class="panel">
+      <div class="section-card">
+        <div class="section-title">Team stats — 2026 season</div>
+        <div class="team-row hdr"><span>Team</span><span>W-L</span><span>Pyth%</span><span>R/G</span><span></span></div>
+        ${teamsHTML}
+      </div>
+    </div>
+  `;
+}
+
+loadData();
+</script>
+</body>
+</html>
