@@ -38,14 +38,29 @@ def get_standings():
         res = requests.get(url, timeout=10)
         data = res.json()
         standings = {}
+        LEAGUE_AVG_RPG = 4.5
         for record in data.get("records", []):
             for team in record.get("teamRecords", []):
                 abbr = team["team"]["abbreviation"]
+                wins = team["wins"]
+                losses = team["losses"]
+                games_played = wins + losses
+                runs_scored = team.get("runsScored", 0)
+                runs_allowed = team.get("runsAllowed", 0)
+                if games_played == 0 or runs_scored == 0:
+                    rpg_scored = LEAGUE_AVG_RPG
+                    rpg_allowed = LEAGUE_AVG_RPG
+                else:
+                    rpg_scored = runs_scored / games_played
+                    rpg_allowed = runs_allowed / games_played
                 standings[abbr] = {
-                    "w": team["wins"],
-                    "l": team["losses"],
-                    "runsScored": team.get("runsScored", 0),
-                    "runsAllowed": team.get("runsAllowed", 0),
+                    "w": wins,
+                    "l": losses,
+                    "runsScored": runs_scored,
+                    "runsAllowed": runs_allowed,
+                    "rpgScored": rpg_scored,
+                    "rpgAllowed": rpg_allowed,
+                    "gamesPlayed": games_played,
                     "divisionRank": team.get("divisionRank", ""),
                     "division": record["division"]["name"]
                 }
