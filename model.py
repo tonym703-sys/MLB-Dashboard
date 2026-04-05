@@ -76,16 +76,15 @@ def run_model():
         hd = standings.get(home, {})
         ad = standings.get(away, {})
 
-        hg = max((hd.get("w", 0) + hd.get("l", 0)), 1)
-        ag = max((ad.get("w", 0) + ad.get("l", 0)), 1)
+     LEAGUE_AVG = 4.5
 
-        h_pyth = pyth(hd.get("runsScored", 0), hd.get("runsAllowed", 1))
-        a_pyth = pyth(ad.get("runsScored", 0), ad.get("runsAllowed", 1))
+        h_rpg = hd.get("rpgScored", LEAGUE_AVG)
+        a_rpg = ad.get("rpgScored", LEAGUE_AVG)
+        h_rapg = hd.get("rpgAllowed", LEAGUE_AVG)
+        a_rapg = ad.get("rpgAllowed", LEAGUE_AVG)
 
-        h_rpg = hd.get("runsScored", 0) / hg
-        a_rpg = ad.get("runsScored", 0) / ag
-        h_rapg = hd.get("runsAllowed", 0) / hg
-        a_rapg = ad.get("runsAllowed", 0) / ag
+        h_pyth = pyth(h_rpg, h_rapg)
+        a_pyth = pyth(a_rpg, a_rapg)
 
         h_base = 0.20*h_pyth + 0.10*h_pyth + 0.05*0.6
         a_base = 0.20*a_pyth + 0.10*a_pyth + 0.05*0.5
